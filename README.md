@@ -5,6 +5,7 @@ A clean, lightweight homepage that acts as a central directory for student tools
 **Live tools linked from this page:**
 - [Merge PDF](https://merge-pdf-two.vercel.app/) — combine multiple PDFs into one document
 - [DIU Cover Page](https://diu-cover-page-omega.vercel.app/) — generate a DIU assignment cover page
+- [PPTX to PDF](https://pptx2pdf.vercel.app/) — converts your pptx file into pdf file
 
 This page is a **directory**, not the tools themselves — each card links out to its own external site in a new tab.
 
