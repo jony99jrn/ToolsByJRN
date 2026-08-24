@@ -11,7 +11,7 @@ This page is a **directory**, not the tools themselves — each card links out t
 
 ## Tech
 
-Plain HTML, CSS, and JavaScript — a single self-contained `index.html` file. No frameworks, no build step, no dependencies.
+Plain HTML, CSS, and JavaScript. No frameworks, no build step, no dependencies — just static files.
 
 ## Features
 
@@ -26,29 +26,45 @@ Plain HTML, CSS, and JavaScript — a single self-contained `index.html` file. N
 ## Project structure
 
 ```
-index.html   ← everything: markup, styles, script, and all tool icons (inline SVG)
+index.html            ← page markup only
+css/
+└── styles.css         ← all styling, incl. light/dark theme variables
+js/
+├── icons.js           ← every tool's SVG icon, one constant each
+├── app.js             ← search, filters, chips, theme toggle, mobile menu
+└── tools/             ← one file per tool
+    ├── merge-pdf.js
+    └── diu-cover-page.js
 ```
+
+Scripts are loaded as plain `<script src="">` tags in a fixed order — `icons.js`, then each file in `js/tools/`, then `app.js` last. Each tool file registers itself into a shared list that `app.js` reads to build the page; no bundler needed.
 
 ## Adding a new tool
 
-All tool data lives in one array near the top of the `<script>` block in `index.html`:
+1. Add the tool's icon to `js/icons.js` as a new `const` (inline SVG, `fill="currentColor"` so it adapts to the theme).
+2. Create a new file in `js/tools/`, e.g. `js/tools/my-tool.js`:
 
-```js
-const tools = [
-  {
-    name: "Tool Name",
-    description: "Short one-line description.",
-    category: "Category Name",
-    url: "https://your-tool-url.com/",
-    icon: `<svg>...</svg>`,   // inline SVG markup, use fill="currentColor" so it adapts to the theme
-    keywords: ["keyword1", "keyword2"],
-    featured: false            // optional — shows a "Featured" badge on the card
-  },
-  // ...existing tools
-];
-```
+   ```js
+   window.TOOLS = window.TOOLS || [];
 
-Add a new object to the array — the search, category chips, and grid all update automatically. No other code changes needed.
+   window.TOOLS.push({
+     name: "Tool Name",
+     description: "Short one-line description.",
+     category: "Category Name",
+     url: "https://your-tool-url.com/",
+     icon: ICON_MY_TOOL,
+     keywords: ["keyword1", "keyword2"],
+     featured: false            // optional — shows a "Featured" badge
+   });
+   ```
+
+3. Add one line in `index.html`, before the `app.js` script tag:
+
+   ```html
+   <script src="js/tools/my-tool.js"></script>
+   ```
+
+That's it — the search, category chips, and grid all pick it up automatically.
 
 ## Deployment
 
@@ -56,13 +72,13 @@ This is a static site, so it deploys anywhere that serves static files:
 
 **GitHub Pages**
 
-1. Push `index.html` to a repo (e.g. as the only file, or inside a `docs/` folder).
+1. Push the repo (with the structure above at the root).
 2. In the repo settings, enable GitHub Pages for that branch/folder.
 
 **Vercel**
 
 1. Import the repo into Vercel (or drag-and-drop deploy).
-2. No build command needed — it's a static `index.html`.
+2. No build command needed — it's all static files.
 
 ## Color palette
 
