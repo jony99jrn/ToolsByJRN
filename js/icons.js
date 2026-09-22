@@ -24,7 +24,7 @@ const ICON_COVER = `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" 
 </svg>`;
 
 
-const ICON_image2pdf = `<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+const ICON_imagetopdf = `<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 width="550.801px" height="550.801px" viewBox="0 0 550.801 550.801" style="enable-background:new 0 0 550.801 550.801;"
 	 xml:space="preserve">
 <g>
