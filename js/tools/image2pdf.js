@@ -5,7 +5,7 @@ window.TOOLS.push({
   description: "Convert your images into pdf...easy to use",
   category: "pdf",
   url: "https://image2pdf-jrn.vercel.app",
-  icon: ICON_image2pdf,
+  icon: ICON_imagetopdf,
   keywords: ["pdf", "image to pdf"],
   featured: true
 });
