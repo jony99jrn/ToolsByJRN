@@ -9,7 +9,7 @@
 window.TOOLS = window.TOOLS || [];
 
 window.TOOLS.push({
-  name: "DIU Cover Page",
+  name: "DIU Assignment Cover Page",
   description: "Create a clean and professional DIU assignment cover page quickly.",
   category: "Academic Tools",
   url: "https://diu-cover-page-omega.vercel.app/",
