@@ -15,5 +15,5 @@ window.TOOLS.push({
   url: "https://merge-pdf-two.vercel.app/",
   icon: ICON_PDF,
   keywords: ["pdf", "merge", "combine", "document", "files"],
-  featured: true
+  featured: false
 });
