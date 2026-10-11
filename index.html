@@ -21,99 +21,67 @@
 })();
 </script>
 </head>
-<body>
+<body class="intro">
 
-<header class="navbar">
-  <div class="container">
-    <a href="#top" class="logo-text" id="home">Tools By <span>JRN</span></a>
-    <nav class="nav-links" aria-label="Primary">
-      <a href="#top">Home</a>
+<div class="wrap" id="top">
+
+  <header class="bar">
+    <a href="#top" class="wordmark">Tools By JRN</a>
+    <nav class="bar-nav" aria-label="Primary">
       <a href="#tools">Tools</a>
       <a href="#about">About</a>
+      <button class="icon-btn" id="themeToggle" type="button" aria-label="Switch between light and dark theme">
+        <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2.5v2M12 19.5v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M2.5 12h2M19.5 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg>
+        <svg class="moon-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.3 14.6a8.5 8.5 0 01-11-11 .8.8 0 00-1-1A10 10 0 1021.3 15.6a.8.8 0 00-1-1z"/></svg>
+      </button>
     </nav>
-    <div class="nav-actions">
-      <button class="icon-btn" id="themeToggle" aria-label="Switch between light and dark theme">
-        <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2.5v2M12 19.5v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M2.5 12h2M19.5 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg>
-        <svg class="moon-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M20.3 14.6a8.5 8.5 0 01-11-11 .8.8 0 00-1-1A10 10 0 1021.3 15.6a.8.8 0 00-1-1z"/></svg>
-      </button>
-      <a href="#tools" class="btn btn-primary">Explore Tools →</a>
-      <button class="hamburger" id="hamburgerBtn" aria-label="Toggle menu" aria-expanded="false" aria-controls="mobilePanel">
-        <span></span><span></span><span></span>
-      </button>
-    </div>
-  </div>
-  <div class="mobile-panel" id="mobilePanel">
-    <a href="#top">Home</a>
-    <a href="#tools">Tools</a>
-    <a href="#about">About</a>
-    <a href="#tools" class="btn btn-primary">Explore Tools →</a>
-  </div>
-</header>
+  </header>
 
-<main id="top">
-  <section class="hero">
-    <div class="container hero-inner">
-      <span class="eyebrow">Free · No sign-up · Built for students</span>
-      <h1>Everything for campus life, one search away.</h1>
-      <p class="sub">Free web tools built by a CS student, for students — merge PDFs, format assignments, and convert files in seconds.</p>
+  <main>
+    <section class="hub" aria-label="Search and filter tools">
 
-      <div class="launch-wrap">
-        <div class="launch-box">
-          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-          <input type="text" id="searchInput" placeholder="Search tools…" aria-label="Search tools" autocomplete="off">
-          <button class="launch-clear" id="searchClear" aria-label="Clear search">✕</button>
-          <span class="launch-kbd" aria-hidden="true">/</span>
-          <button class="launch-btn" id="launchBtn" aria-label="Jump to tools">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-          </button>
+      <div class="tile hero t-orange" style="--i:0">
+        <div class="plates" id="plates" aria-hidden="true"></div>
+        <div class="hero-copy">
+          <h1>Everything for campus life, one search away.</h1>
+          <p>Free web tools built by a CS student, for students — merge PDFs, format assignments, and convert files in seconds.</p>
         </div>
       </div>
 
-      <div class="chips" id="chips" role="group" aria-label="Filter tools by category"></div>
-      <p class="trust-line" id="trustLine"></p>
-    </div>
-  </section>
-
-  <section class="section" id="tools">
-    <div class="container">
-      <div class="section-head">
-        <span class="section-eyebrow">Directory</span>
-        <h2>All Tools</h2>
-        <p>Every tool opens in its own tab — this page just points you to it.</p>
+      <div class="tile search t-paper" style="--i:1">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <label class="sr" for="searchInput">Search tools</label>
+        <input type="text" id="searchInput" placeholder="Search tools…" autocomplete="off" spellcheck="false">
+        <kbd aria-hidden="true">/</kbd>
+        <button class="clear" id="searchClear" type="button" aria-label="Clear search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+        </button>
       </div>
-      <div class="grid" id="toolsGrid"></div>
-      <div class="empty-state" id="emptyState" style="display:none;">
-        <div class="emoji">🗂️</div>
-        <strong>No tools found.</strong>
-        <span>Try searching for another keyword.</span>
-      </div>
-    </div>
-  </section>
 
-  <section class="section" id="about">
-    <div class="container about">
-      <h2>Built by a student, for students.</h2>
+      <div class="tile chips t-sand" id="chips" role="group" aria-label="Filter tools by category" style="--i:2"></div>
+
+      <div class="tile count t-ink" style="--i:3">
+        <strong id="countTitle"></strong>
+        <span>Free, no sign-up, no ads.</span>
+      </div>
+
+    </section>
+
+    <section class="tools" id="tools" aria-label="All tools"></section>
+    <div class="sr" id="live" role="status" aria-live="polite"></div>
+
+    <section class="tile about t-sand" id="about" aria-labelledby="aboutTitle">
+      <h2 id="aboutTitle">Built by a student, for students.</h2>
       <p>I'm Jony — a first-year CS student building the small tools I keep wishing existed for everyday coursework.</p>
-    </div>
-  </section>
-</main>
+    </section>
+  </main>
 
-<footer>
-  <div class="container">
-    <div class="footer-top">
-      <div class="footer-brand">
-        <span class="logo-text" style="font-weight:800;">Tools By JRN</span>
-        <p>Simple tools. Less hassle.</p>
-      </div>
-      <nav class="footer-links" aria-label="Footer">
-        <a href="#top">Home</a>
-        <a href="#tools">Tools</a>
-        <a href="#about">About</a>
-      </nav>
-    </div>
-    <div class="footer-bottom">© 2026 JRN. All rights reserved.</div>
-  </div>
-</footer>
+  <footer class="foot">
+    <span>© 2026 JRN. All rights reserved.</span>
+    <span>Simple tools. Less hassle.</span>
+  </footer>
+
+</div>
 
 <!--
   Load order matters: icons.js first (tool files reference its constants),
