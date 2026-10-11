@@ -15,11 +15,12 @@ Plain HTML, CSS, and JavaScript. No frameworks, no build step, no dependencies �
 
 ## Features
 
-- Light/dark theme toggle — remembers your choice, and follows your system preference on first visit
-- Search-first hero — typing filters the tools grid live, no separate search section
-- Category filter chips, generated automatically from whatever categories your tools use
+- Terminal-style page: the whole site is one terminal window, and the tool list works like a command-line fuzzy finder
+- Type to filter tools live, use ↑ ↓ to move and Enter to open the selected tool, Esc to clear
+- Preview pane beside the list shows the selected tool's icon, description and address (on narrow screens the description sits inside each row instead)
+- Category filter buttons, generated automatically from whatever categories your tools use
 - `/` keyboard shortcut jumps straight to the search box
-- Sticky navbar with a mobile hamburger menu
+- Light/dark theme toggle — remembers your choice, and follows your system preference on first visit
 - Fully responsive (360px and up), keyboard accessible, visible focus states
 - Respects `prefers-reduced-motion`
 
@@ -31,7 +32,7 @@ css/
 └── styles.css         ← all styling, incl. light/dark theme variables
 js/
 ├── icons.js           ← every tool's SVG icon, one constant each
-├── app.js             ← search, filters, chips, theme toggle, mobile menu
+├── app.js             ← finder: search, filters, list, preview, keyboard, theme toggle
 └── tools/             ← one file per tool
     ├── merge-pdf.js
     └── diu-cover-page.js
@@ -54,7 +55,7 @@ Scripts are loaded as plain `<script src="">` tags in a fixed order — `icons.j
      url: "https://your-tool-url.com/",
      icon: ICON_MY_TOOL,
      keywords: ["keyword1", "keyword2"],
-     featured: false            // optional — shows a "Featured" badge
+     featured: false            // optional — true lists the tool first
    });
    ```
 
