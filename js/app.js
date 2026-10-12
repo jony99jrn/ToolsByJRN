@@ -1,120 +1,187 @@
 /* ==========================================================================
    Tools By JRN — app logic
    Reads window.TOOLS (populated by js/tools/*.js, which load before this
-   file) and drives the hero search, category chips, tools grid, theme
-   toggle, and mobile menu. No tool-specific data belongs in this file —
-   add new tools in js/tools/ instead.
+   file) and drives the finder: search box, category flags, tool list,
+   preview pane, keyboard control and the theme toggle. No tool-specific
+   data belongs in this file — add new tools in js/tools/ instead.
    ========================================================================== */
 (function(){
 "use strict";
 
 const tools = window.TOOLS || [];
 
-/* ===== RENDER HELPERS ===== */
-function cardHTML(tool){
-  return `
-  <article class="card">
-    ${tool.featured ? '<span class="featured-tag">Featured</span>' : ''}
-    <div class="card-thumb">${tool.icon}</div>
-    <div class="card-category">${tool.category}</div>
-    <h3>${tool.name}</h3>
-    <p>${tool.description}</p>
-    <a class="card-link" href="${tool.url}" target="_blank" rel="noopener noreferrer">
-      <span>Open Tool</span>
-      <span class="arrow-chip" aria-hidden="true">→</span>
-    </a>
-  </article>`;
+function esc(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function host(url){
+  try{ return new URL(url).hostname; }catch(e){ return url; }
 }
 
-function revealOnScroll(container){
-  const cards = container.querySelectorAll('.card');
-  requestAnimationFrame(()=>{
-    cards.forEach((c, i)=>{
-      setTimeout(()=>c.classList.add('visible'), i * 70);
-    });
-  });
-}
-
-document.getElementById('trustLine').textContent =
-  `${tools.length} tool${tools.length === 1 ? '' : 's'} and counting · free · no ads`;
-
-/* ===== CATEGORY CHIPS (drive the hero search + tools grid together) ===== */
-const categories = ["All", ...new Set(tools.map(t=>t.category))];
+/* ===== ELEMENTS ===== */
+const searchInput = document.getElementById('searchInput');
+const queryBox = searchInput.closest('.query');
+const searchClear = document.getElementById('searchClear');
+const countEl = document.getElementById('count');
 const chipsEl = document.getElementById('chips');
-chipsEl.innerHTML = categories.map((cat,i)=>
-  `<button class="chip${i===0?' active':''}" data-category="${cat}" aria-pressed="${i===0}">${cat}</button>`
+const listEl = document.getElementById('list');
+const previewEl = document.getElementById('preview');
+const live = document.getElementById('live');
+
+/* ===== STATIC TEXT ===== */
+document.getElementById('statusLine').textContent =
+  `${tools.length} tool${tools.length === 1 ? '' : 's'} and counting. Free, no sign-up, no ads.`;
+
+/* ===== CATEGORY FLAGS ===== */
+const categories = ["All", ...new Set(tools.map(t => t.category))];
+chipsEl.innerHTML = categories.map((c, i) =>
+  `<button class="flag" type="button" data-category="${esc(c)}" aria-pressed="${i === 0}">${esc(c)}</button>`
 ).join('');
 let activeCategory = "All";
 
-/* ===== SEARCH + FILTER LOGIC ===== */
-const toolsGrid = document.getElementById('toolsGrid');
-const emptyState = document.getElementById('emptyState');
-const searchInput = document.getElementById('searchInput');
-const searchClear = document.getElementById('searchClear');
+/* ===== STATE ===== */
+let results = [];
+let sel = 0;
+let moved = false;   // true once the person has moved the selection by keyboard
 
 function matchesSearch(tool, term){
   if(!term) return true;
-  const haystack = [tool.name, tool.description, tool.category, ...tool.keywords].join(' ').toLowerCase();
-  return haystack.includes(term);
+  return [tool.name, tool.description, tool.category, ...(tool.keywords || [])]
+    .join(' ').toLowerCase().includes(term);
 }
 
-function renderTools(){
-  const term = searchInput.value.trim().toLowerCase();
-  searchClear.classList.toggle('visible', term.length > 0);
-  const results = tools.filter(t=>
-    (activeCategory === "All" || t.category === activeCategory) && matchesSearch(t, term)
-  );
-  if(results.length === 0){
-    toolsGrid.style.display = 'none';
-    emptyState.style.display = 'block';
-  } else {
-    toolsGrid.style.display = 'grid';
-    emptyState.style.display = 'none';
-    toolsGrid.innerHTML = results.map(cardHTML).join('');
-    revealOnScroll(toolsGrid);
+/* ===== RENDER ===== */
+function rowHTML(t, i){
+  return `
+  <a class="row" href="${esc(t.url)}" target="_blank" rel="noopener noreferrer" data-i="${i}">
+    <span class="mk" aria-hidden="true">&gt;</span>
+    <span class="nm">${esc(t.name)}<span class="sr"> (opens in a new tab)</span></span>
+    <span class="ct">${esc(t.category)}</span>
+    <span class="rd">${esc(t.description)}</span>
+  </a>`;
+}
+
+function renderPreview(){
+  const t = results[sel];
+  if(!t){ previewEl.className = 'preview none'; previewEl.innerHTML = ''; return; }
+  previewEl.className = 'preview';
+  previewEl.innerHTML = `
+    <div class="pv-head">
+      <div class="plate">${t.icon}</div>
+      <h2>${esc(t.name)}</h2>
+    </div>
+    <p class="pv-desc">${esc(t.description)}</p>
+    <dl>
+      <dt>category</dt><dd>${esc(t.category)}</dd>
+      <dt>opens</dt><dd>${esc(host(t.url))}</dd>
+    </dl>
+    <a class="open" href="${esc(t.url)}" target="_blank" rel="noopener noreferrer">Open tool ↵</a>`;
+}
+
+function applySelection(scroll){
+  listEl.querySelectorAll('.row').forEach((r, i) => {
+    r.classList.toggle('sel', i === sel);
+  });
+  if(scroll){
+    const row = listEl.querySelector('.row.sel');
+    if(row) row.scrollIntoView({block:'nearest'});
   }
+  renderPreview();
 }
 
-chipsEl.addEventListener('click', (e)=>{
-  const btn = e.target.closest('.chip');
+function render(){
+  const raw = searchInput.value.trim();
+  const term = raw.toLowerCase();
+  queryBox.classList.toggle('has-text', raw.length > 0);
+
+  /* Array.sort is stable, so non-featured tools keep their load order */
+  results = tools
+    .filter(t => (activeCategory === "All" || t.category === activeCategory) && matchesSearch(t, term))
+    .sort((a, b) => Number(!!b.featured) - Number(!!a.featured));
+  sel = 0;
+  moved = false;
+  countEl.textContent = `${results.length}/${tools.length}`;
+
+  if(results.length === 0){
+    listEl.innerHTML = `
+      <div class="empty">
+        <p>No tools found${raw ? ` for “${esc(raw)}”` : ''}. Try another keyword.</p>
+        <button type="button" id="resetBtn">Clear search</button>
+      </div>`;
+    document.getElementById('resetBtn').addEventListener('click', resetAll);
+    live.textContent = 'No tools found.';
+  } else {
+    listEl.innerHTML = results.map(rowHTML).join('');
+    live.textContent = `${results.length} ${results.length === 1 ? 'tool' : 'tools'} found.`;
+  }
+  applySelection(false);
+}
+
+function resetAll(){
+  searchInput.value = '';
+  activeCategory = "All";
+  chipsEl.querySelectorAll('.flag').forEach(c => c.setAttribute('aria-pressed', c.dataset.category === "All"));
+  render();
+  searchInput.focus();
+}
+
+/* ===== EVENTS ===== */
+chipsEl.addEventListener('click', (e) => {
+  const btn = e.target.closest('.flag');
   if(!btn) return;
   activeCategory = btn.dataset.category;
-  chipsEl.querySelectorAll('.chip').forEach(p=>{
-    p.classList.toggle('active', p === btn);
-    p.setAttribute('aria-pressed', p === btn);
-  });
-  renderTools();
+  chipsEl.querySelectorAll('.flag').forEach(c => c.setAttribute('aria-pressed', c === btn));
+  render();
 });
-searchInput.addEventListener('input', renderTools);
-searchClear.addEventListener('click', ()=>{
-  searchInput.value = '';
-  searchInput.focus();
-  renderTools();
-});
-document.getElementById('launchBtn').addEventListener('click', ()=>{
-  document.getElementById('tools').scrollIntoView({behavior:'smooth'});
-});
-searchInput.addEventListener('keydown', (e)=>{
-  if(e.key === 'Enter'){
-    document.getElementById('tools').scrollIntoView({behavior:'smooth'});
+
+searchInput.addEventListener('input', render);
+searchClear.addEventListener('click', () => { searchInput.value = ''; render(); searchInput.focus(); });
+
+/* Hovering or focusing a row selects it, so the preview follows */
+function selectFromEvent(e){
+  const row = e.target.closest('.row');
+  if(!row) return;
+  const i = Number(row.dataset.i);
+  if(i !== sel){ sel = i; applySelection(false); }
+}
+listEl.addEventListener('mouseover', selectFromEvent);
+listEl.addEventListener('focusin', selectFromEvent);
+
+searchInput.addEventListener('keydown', (e) => {
+  if(e.key === 'ArrowDown' || e.key === 'ArrowUp'){
+    if(!results.length) return;
+    e.preventDefault();
+    sel = e.key === 'ArrowDown' ? Math.min(sel + 1, results.length - 1) : Math.max(sel - 1, 0);
+    moved = true;
+    applySelection(true);
+  } else if(e.key === 'Enter'){
+    /* Enter opens the selected tool, but not on a bare, untouched page */
+    if(results[sel] && (searchInput.value.trim() || moved)){
+      e.preventDefault();
+      window.open(results[sel].url, '_blank', 'noopener,noreferrer');
+    }
+  } else if(e.key === 'Escape'){
+    searchInput.value = '';
+    render();
   }
 });
-renderTools();
 
 /* "/" focuses search from anywhere, unless already typing in a field */
-document.addEventListener('keydown', (e)=>{
-  if(e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA'){
-    e.preventDefault();
-    searchInput.focus();
-  }
+document.addEventListener('keydown', (e) => {
+  if(e.key !== '/' || e.metaKey || e.ctrlKey || e.altKey) return;
+  const tag = document.activeElement.tagName;
+  if(tag === 'INPUT' || tag === 'TEXTAREA') return;
+  e.preventDefault();
+  searchInput.focus();
 });
 
-/* ===== TYPED PLACEHOLDER (hero search, cycles example queries) ===== */
+render();
+
+/* ===== TYPED PLACEHOLDER (cycles example queries) ===== */
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const examples = ["Search tools…", "Try \u2018merge pdf\u2019", "Try \u2018cover page\u2019"];
+const examples = ["Search tools…", "Try ‘merge pdf’", "Try ‘cover page’"];
 if(!reduceMotion){
   let exIndex = 0, charIndex = 0, deleting = false;
-  function cyclePlaceholder(){
+  const cyclePlaceholder = function(){
     if(document.activeElement === searchInput || searchInput.value){
       setTimeout(cyclePlaceholder, 600);
       return;
@@ -125,35 +192,19 @@ if(!reduceMotion){
     if(!deleting && charIndex > current.length){ delay = 1400; deleting = true; }
     else if(deleting && charIndex < 0){ deleting = false; exIndex = (exIndex + 1) % examples.length; charIndex = 0; delay = 300; }
     setTimeout(cyclePlaceholder, delay);
-  }
-  cyclePlaceholder();
-} else {
-  searchInput.placeholder = "Search tools…";
+  };
+  setTimeout(cyclePlaceholder, 1600);
 }
 
 /* ===== THEME TOGGLE ===== */
-const themeToggle = document.getElementById('themeToggle');
-themeToggle.addEventListener('click', ()=>{
+document.getElementById('themeToggle').addEventListener('click', () => {
   const html = document.documentElement;
   const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
   html.setAttribute('data-theme', next);
   try{ localStorage.setItem('tbj-theme', next); }catch(e){}
 });
 
-/* ===== MOBILE MENU ===== */
-const hamburgerBtn = document.getElementById('hamburgerBtn');
-const mobilePanel = document.getElementById('mobilePanel');
-hamburgerBtn.addEventListener('click', ()=>{
-  const open = mobilePanel.classList.toggle('open');
-  hamburgerBtn.classList.toggle('active', open);
-  hamburgerBtn.setAttribute('aria-expanded', open);
-});
-mobilePanel.querySelectorAll('a').forEach(a=>{
-  a.addEventListener('click', ()=>{
-    mobilePanel.classList.remove('open');
-    hamburgerBtn.classList.remove('active');
-    hamburgerBtn.setAttribute('aria-expanded', false);
-  });
-});
+/* Entrance animation runs once, then gets out of the way */
+setTimeout(() => document.body.classList.remove('intro'), 2200);
 
 })();
