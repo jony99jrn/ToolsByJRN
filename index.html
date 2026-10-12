@@ -9,6 +9,15 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css">
+
+<!-- PWA: makes the site installable ("Install app" in Chrome) -->
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#c2410c">
+<link rel="icon" type="image/png" href="/icon-192.png">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="JRN Tools">
 <script>
 /* Set theme before first paint to avoid a flash of the wrong theme.
    Kept inline (not in app.js) so it runs before the stylesheet/page render. */
@@ -129,5 +138,12 @@
 <script src="js/tools/merge-pdf.js"></script>
 <script src="js/tools/diu-cover-page.js"></script>
 <script src="js/app.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('/sw.js').catch(function () {});
+    });
+  }
+</script>
 </body>
 </html>
