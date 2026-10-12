@@ -55,7 +55,7 @@ const ICON_labCOVER = `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/sv
 <path d="M61.228 33.155c-2.256-2.472-3.539-5.399-4.419-8.518c-2.727 1.543-5.308 3.003-7.747 4.385C46.392 19.556 47.121 8.488 38.121 2L2 10.253c15.272 11.005 11.144 39.508 22.041 50.212c.911.895 4.324 2.588 9.068.628c7.352-3.038 4.657-6.484 27.185-22.907c1.987-1.45 2.156-3.67.934-5.031M24.701 42.81c1.234 4.375 9.551 6.745 8.115 13.259c-.872 3.961-5.77 4.762-7.461 3.064c-4.45-4.466-6.291-12.502-8.191-21.061c-2.199-9.904-4.463-20.106-11.129-26.824l31.65-7.23c5.485 4.371 6.664 10.884 7.909 17.765c.491 2.715 1.014 5.497 1.804 8.182L24.701 42.81" fill="#000000"></path>
 </svg>`;
 
-const ICON_pdfcompressor = `<svg fill="#000000" height="800px" width="800px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+const ICON_pdfcompressor = `<svg fill="currentColor" height="800px" width="800px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
 	 viewBox="0 0 512 512" xml:space="preserve">
 <g>
 	<g>
